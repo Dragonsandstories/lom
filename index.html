@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ljus & Mörker: Utforskningsspel</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Säkerställ att dolda element verkligen är dolda */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div class="game-border"></div>
+        <div id="ui-overlay" class="hidden">
+            Ljusstyrka: <span id="light-level">100</span>%<br>
+            Kristaller: <span id="crystals-collected">0</span>/<span id="total-crystals">5</span><br>
+            Poäng: <span id="score">0</span> | Nivå: <span id="level">1</span><br>
+            <div class="stamina-container">
+                <div id="stamina-bar"></div>
+            </div>
+        </div>
+        
+        <div id="instructions" class="hidden">
+            WASD/Piltangenter = Förflytta dig | Mellanslag = Växla ljusstyrka | Skift = Springa | F = Ficklampa
+        </div>
+        
+        <div id="message-overlay" class="hidden">
+            <div id="message-text"></div>
+            <button id="next-level-button" class="hidden">Nästa nivå</button>
+        </div>
+        
+        <div id="title-screen">
+            <!-- 3D-miljö med stjärnor och labyrint -->
+            <div class="stars" id="stars-container">
+                <!-- Stjärnor läggs till dynamiskt med JavaScript -->
+            </div>
+            
+            <div class="maze-floor"></div>
+            
+            <!-- 3D-spelaren med förbättrade effekter -->
+            <div class="player-3d">
+                <div class="player-glow"></div>
+                
+                <div class="light-rays">
+                    <div class="light-ray" style="transform: rotate(0deg)"></div>
+                    <div class="light-ray" style="transform: rotate(30deg)"></div>
+                    <div class="light-ray" style="transform: rotate(60deg)"></div>
+                    <div class="light-ray" style="transform: rotate(90deg)"></div>
+                    <div class="light-ray" style="transform: rotate(120deg)"></div>
+                    <div class="light-ray" style="transform: rotate(150deg)"></div>
+                    <div class="light-ray" style="transform: rotate(180deg)"></div>
+                    <div class="light-ray" style="transform: rotate(210deg)"></div>
+                    <div class="light-ray" style="transform: rotate(240deg)"></div>
+                    <div class="light-ray" style="transform: rotate(270deg)"></div>
+                    <div class="light-ray" style="transform: rotate(300deg)"></div>
+                    <div class="light-ray" style="transform: rotate(330deg)"></div>
+                </div>
+                
+                <!-- Partiklar läggs till dynamiskt via JavaScript -->
+                <div id="particles-container"></div>
+                
+                <div class="player-body">
+                    <div class="player-eye left">
+                        <div class="player-pupil"></div>
+                    </div>
+                    <div class="player-eye right">
+                        <div class="player-pupil"></div>
+                    </div>
+                    <div class="player-mouth"></div>
+                    <div class="player-antenna left">
+                        <div class="antenna-tip"></div>
+                    </div>
+                    <div class="player-antenna right">
+                        <div class="antenna-tip"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mörka fiender med förbättrade effekter -->
+            <div class="enemy enemy-1">
+                <div class="enemy-glow"></div>
+                <div class="enemy-body"></div>
+                <div class="enemy-eye left"></div>
+                <div class="enemy-eye right"></div>
+            </div>
+            
+            <div class="enemy enemy-2">
+                <div class="enemy-glow"></div>
+                <div class="enemy-body"></div>
+                <div class="enemy-eye left"></div>
+                <div class="enemy-eye right"></div>
+            </div>
+            
+            <div class="enemy enemy-3">
+                <div class="enemy-glow"></div>
+                <div class="enemy-body"></div>
+                <div class="enemy-eye left"></div>
+                <div class="enemy-eye right"></div>
+            </div>
+            
+            <!-- Titeltext och knappar -->
+            <h1 class="glow">Ljus & Mörker</h1>
+            <p>Samla alla kristaller i labyrinten, men akta dig för mörkrets varelser!</p>
+            <p>De dras till ljuset och kan se dig om du lyser för starkt. De kan även skjuta mörka energibollar mot dig!</p>
+            <button id="start-button">Starta spelet</button>
+        </div>
+        
+        <div id="highscore-screen" class="hidden">
+            <h2>Topplista</h2>
+            <table id="highscore-table">
+                <thead>
+                    <tr>
+                        <th>Plats</th>
+                        <th>Namn</th>
+                        <th>Poäng</th>
+                        <th>Nivå</th>
+                    </tr>
+                </thead>
+                <tbody id="highscore-body">
+                    <!-- Highscores fylls på dynamiskt -->
+                </tbody>
+            </table>
+            <div id="name-input-container" class="hidden">
+                <label for="player-name">Ditt namn: </label>
+                <input type="text" id="player-name" maxlength="15" placeholder="Skriv ditt namn" autocomplete="off">
+                <button id="save-score-button">Spara</button>
+            </div>
+            <div class="button-group">
+                <button id="play-again-button">Spela igen</button>
+                <button id="clear-highscores-button">Rensa topplista</button>
+            </div>
+        </div>
+        
+        <div id="easter-egg" class="hidden">
+            <div class="easter-egg-content">
+                <h2>Sebastian Lindholm's Antagningsprov</h2>
+                <p>GAME DESIGNER hos PlaygroundSquad</p>
+                <p>Du hittade easter egget! Grattis!</p>
+                <button id="easter-egg-close">Stäng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ladda spelmotorn först -->
+    <script src="js/phaser.min.js"></script>
+    
+    <!-- Kontrollera att Phaser laddas korrekt -->
+    <script>
+        window.addEventListener('load', function() {
+            console.log("Webbsidan har laddats");
+            if (typeof Phaser === 'undefined') {
+                console.error("Phaser är inte definierad! Kontrollera att phaser.min.js laddas korrekt.");
+                alert("Fel: Phaser-biblioteket kunde inte laddas. Kontrollera din internetanslutning eller att filen finns i rätt mapp.");
+            } else {
+                console.log("Phaser version:", Phaser.VERSION);
+            }
+        });
+    </script>
+    
+    <!-- Ladda spelets komponenter -->
+    <script src="js/utils.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/enemy.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
